@@ -1,22 +1,22 @@
 pipeline {
-    agent any  // can also use 'windows' or a specific agent label
-    environment {
-        NODE_HOME = 'C:\\Program Files\\nodejs'  // Node installation path on agent
-        PATH = "${env.NODE_HOME};${env.PATH}"
-    }
+    agent any
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/itsmeharipriya/Banking-project-BDD-frame-work'
+                git branch: 'main',
+                    url: 'https://github.com/itsmeharipriya/E-commerce-site-Testing-Playwright-JS-'
             }
         }
+
         stage('Install Dependencies') {
             steps {
                 bat 'npm install'
-                bat 'npx playwright install'  // installs browsers
+                bat 'npx playwright install'
             }
         }
-        stage('Run Tests') {
+
+        stage('Run Tests in Parallel') {
             parallel {
                 stage('Chromium') {
                     steps {
@@ -35,23 +35,11 @@ pipeline {
                 }
             }
         }
-        stage('Publish Report') {
+
+        stage('Post Cleanup') {
             steps {
-                publishHTML(target: [
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'playwright-report',
-                    reportFiles: 'index.html',
-                    reportName: 'Playwright HTML Report'
-                ])
+                echo 'Tests completed!'
             }
-        }
-    }
-    post {
-        always {
-            echo 'Cleaning workspace...'
-            cleanWs()
         }
     }
 }
